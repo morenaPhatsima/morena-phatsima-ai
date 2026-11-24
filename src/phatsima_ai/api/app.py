@@ -4,7 +4,9 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
 
+from phatsima_ai.api.dashboard import render_dashboard_html
 from phatsima_ai.core.catalogue import MORENA_PHATSIMA_PROFILE, SERVICE_CATALOGUE
 from phatsima_ai.core.database import (
     DEFAULT_DB_PATH,
@@ -33,13 +35,24 @@ def create_app(db_path: Path = DEFAULT_DB_PATH) -> FastAPI:
 
     app = FastAPI(
         title="Morena Phatsima IT AI",
-        version="0.2.0",
+        version="0.3.0",
         lifespan=lifespan,
     )
 
     @app.get("/health")
     def health_check() -> dict[str, str]:
-        return {"status": "ok", "core": "PHATSIMA Core", "version": "0.2.0"}
+        return {"status": "ok", "core": "PHATSIMA Core", "version": "0.3.0"}
+
+    @app.get("/dashboard", response_class=HTMLResponse)
+    def dashboard() -> HTMLResponse:
+        html = render_dashboard_html(
+            enquiries=list_records("enquiries", db_path=db_path),
+            tickets=list_records("tickets", db_path=db_path),
+            leads=list_records("leads", db_path=db_path),
+            quotations=list_records("quotations", db_path=db_path),
+            audit_log=list_records("audit_log", db_path=db_path),
+        )
+        return HTMLResponse(content=html)
 
     @app.get("/services")
     def get_services() -> dict[str, Any]:

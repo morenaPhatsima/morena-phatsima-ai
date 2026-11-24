@@ -235,8 +235,8 @@ def decide_quotation(
 
 
 def list_records(table: str, db_path: Path = DEFAULT_DB_PATH) -> list[dict[str, Any]]:
-    if table not in {"tickets", "leads", "quotations", "audit_log"}:
+    if table not in {"enquiries", "tickets", "leads", "quotations", "audit_log"}:
         raise ValueError(f"Unsupported table: {table}")
     with get_connection(db_path) as conn:
-        rows = conn.execute(f"SELECT * FROM {table} ORDER BY id ASC").fetchall()
+        rows = conn.execute(f"SELECT * FROM {table} ORDER BY id DESC").fetchall()
         return [dict(r) for r in rows]
